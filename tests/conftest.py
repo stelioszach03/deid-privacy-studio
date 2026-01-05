@@ -1,0 +1,107 @@
+import os
+import json
+import subprocess
+from pathlib import Path
+from typing import Dict
+
+import pytest
+from dotenv import load_dotenv
+
+
+def _running_in_container() -> bool:
+    return os.path.exists("/.dockerenv") or os.environ.get("PYTHONPATH") == "/app" or os.environ.get("RUNNING_IN_DOCKER") == "1"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def env() -> None:
+    # Load .env if present; otherwise set sane defaults for tests
+    if Path(".env").exists():
+        load_dotenv(".env")
+    # Ensure API key is disabled during tests (open endpoints by default)
+    os.environ["API_KEY"] = ""
+    # Clear cached settings so API sees updated env
+    try:
+        from app.core.config import get_settings
+
+        get_settings.cache_clear()  # type: ignore[attr-defined]
+        _ = get_settings()
+    except Exception:
+        pass
+    os.environ.setdefault("APP_ENV", "dev")
+    # Configure DSNs depending on environment (container vs local)
+    if _running_in_container():
+        os.environ.setdefault("POSTGRES_DSN", "postgresql+psycopg://deid:deidpass@postgres:5432/deid")
+        os.environ.setdefault("REDIS_URL", "redis://redis:6379/0")
+        os.environ["RUNNING_IN_DOCKER"] = "1"
+    else:
+        os.environ.setdefault("POSTGRES_DSN", "postgresql+psycopg://deid:deidpass@localhost:5432/deid")
+        os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
+    # Celery eager mode for unit tests
+    os.environ.setdefault("CELERY_TASK_ALWAYS_EAGER", "1")
+    os.environ.setdefault("CELERY_TASK_EAGER_PROPAGATES", "1")
+
+
+def _db_available() -> bool:
+    try:
+        from sqlalchemy import create_engine
+        from app.core.config import get_settings
+
+        eng = create_engine(get_settings().postgres_dsn, future=True)
+        with eng.connect() as conn:
+            conn.exec_driver_sql("SELECT 1")
+        return True
+    except Exception:
+        return False
+
+
+@pytest.fixture(scope="session")
+def db_setup() -> None:
+    if not _db_available():
+        pytest.skip("Database not available; skipping DB migrations")
+    # Run alembic upgrade head once per session
+    env = os.environ.copy()
+    # Ensure app package is importable inside container alembic subprocess
+    if _running_in_container():
+        env.setdefault("PYTHONPATH", "/app")
+    subprocess.run(["alembic", "upgrade", "head"], check=True, env=env)
+
+
+@pytest.fixture()
+def api_client():
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    return TestClient(app)
+
+
+@pytest.fixture()
+def sample_texts() -> Dict[str, str]:
+    medical = (
+        "Patient: Eleanor R. Whitfield\n"
+        "MRN:     BWH-47882910\n"
+        "DOB:     03/14/1968\n"
+        "SSN:     412-55-7891\n"
+        "Phone:   (617) 555-0134\n"
+        "Email:   e.whitfield@example.org\n"
+        "NPI:     NPI# 1538296472\n"
+        "DEA:     BO4872913\n"
+        "Address: 482 Commonwealth Avenue, Boston, MA 02215\n"
+        "Refer:   https://hospital.example.org/cases/7788\n"
+        "IP:      192.168.10.25\n"
+    )
+    ca_claim = (
+        "Claim #: CLM-2026-0091-43821\n"
+        "Member:  Marcus T. Delacroix\n"
+        "SIN:     046 454 286\n"
+        "Health Card: 4532-281-947-AB\n"
+        "Address: 180 Bloor Street West, Toronto ON, M5S 2V6\n"
+        "Phone:   +1 416 555 0192\n"
+        "Email:   m.delacroix@example.ca\n"
+    )
+    return {"medical": medical, "ca_claim": ca_claim}
+
+
+@pytest.fixture(scope="session")
+def data_dir(tmp_path_factory) -> Path:
+    root = Path(__file__).resolve().parent / "data"
+    return root

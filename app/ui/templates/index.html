@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title }} — PHI / PII Redaction Studio</title>
+    <meta name="description" content="Policy-governed PHI / PII de-identification for clinical and financial records." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/style.css?v={{ version }}" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <div class="inner">
+        <div class="brand">
+          <div class="brand-mark">
+            <svg viewBox="0 0 44 44" class="brand-glyph" aria-hidden="true">
+              <circle cx="22" cy="22" r="20" fill="none" stroke="currentColor" stroke-width="1" />
+              <circle cx="22" cy="22" r="14" fill="none" stroke="currentColor" stroke-width="0.6" stroke-dasharray="2 3" />
+              <path d="M22 6 L22 38 M6 22 L38 22" stroke="currentColor" stroke-width="0.5" opacity="0.4" />
+              <rect x="16" y="16" width="12" height="12" fill="currentColor" opacity="0.9" />
+              <rect x="18.5" y="18.5" width="7" height="7" fill="var(--bg)" />
+            </svg>
+          </div>
+          <div class="brand-text">
+            <div class="brand-title">Aegis DeID</div>
+            <div class="brand-sub">PHI / PII Redaction Studio · v{{ version }}</div>
+          </div>
+        </div>
+
+        <nav class="topnav" role="toolbar" aria-label="Actions">
+          <div class="compliance">
+            <span class="seal">Policy Governed</span>
+            <span class="sep">/</span>
+            <span class="seal">Deterministic</span>
+          </div>
+
+          <div class="control-group">
+            <label class="sr-only" for="policy">Default Policy</label>
+            <select id="policy" class="select">
+              <option value="mask">Mask ****</option>
+              <option value="hash">Hash [SHA-256]</option>
+              <option value="redact">Redact [LABEL]</option>
+            </select>
+          </div>
+
+          <button id="run-btn" class="btn primary" title="De-Identify (Ctrl/Cmd+Enter)">
+            <svg class="icon"><use href="/static/icons.svg#play" /></svg>
+            <span>Redact</span>
+          </button>
+          <button id="clear-btn" class="btn subtle" title="Clear workspace">
+            <svg class="icon"><use href="/static/icons.svg#trash" /></svg>
+          </button>
+          <button id="upload-btn" class="btn subtle" title="Upload .txt files">
+            <svg class="icon"><use href="/static/icons.svg#upload" /></svg>
+          </button>
+          <input id="file-input" type="file" accept=".txt" multiple hidden />
+          <button id="download-btn" class="btn subtle" title="Download redacted text">
+            <svg class="icon"><use href="/static/icons.svg#download" /></svg>
+          </button>
+          <select id="lang" class="select" hidden><option value="en" selected>en</option></select>
+
+          <div id="metrics-chip" class="chip" aria-live="polite" title="Last run metrics">
+            <span class="chip-dot"></span>
+            <span id="metrics-text">Awaiting input</span>
+            <a id="last-eval-link" href="#" class="link hidden">Last eval</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="shell">
+
+      <!-- HERO -->
+      <section class="hero">
+        <div class="hero-meta">
+          <span class="pill">No. 01</span>
+          <span class="pill pill-soft">Privacy Studio</span>
+          <span class="pill pill-alt">Policy Governed</span>
+        </div>
+        <h1 class="hero-title">
+          Redact <em>protected health</em> &amp; <em>personally identifiable</em> information<br />
+          with a policy-governed, fully auditable redaction engine.
+        </h1>
+        <p class="hero-lede">
+          A FastAPI service that detects 20+ PHI and PII categories — SSN, SIN, NPI,
+          DEA, MRN, HICN, provincial health cards, street addresses, ZIP, postal codes,
+          credit cards, IBAN and routing numbers — and applies per-label
+          <span class="under">mask / hash / redact</span> policies with spaCy NER, regex rules and
+          deterministic span resolution.
+        </p>
+        <div class="hero-ctas">
+          <a class="btn primary" href="#desk">
+            Try the Redaction Desk
+            <svg class="icon xs" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M4 10h12M12 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a class="btn subtle" href="https://github.com/stelioszach03/deid-privacy-studio" target="_blank" rel="noopener">
+            View on GitHub
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-num">20+</div>
+            <div class="stat-lbl">Identifier categories</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">2</div>
+            <div class="stat-lbl">Detection layers</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">&lt; 30ms</div>
+            <div class="stat-lbl">Median latency / 4KB</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">3</div>
+            <div class="stat-lbl">Policy actions</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HERO PREVIEW -->
+      <section class="preview-card" aria-label="Redaction example">
+        <div class="pc-head">
+          <div class="pc-dots"><span class="pc-dot"></span><span class="pc-dot"></span><span class="pc-dot"></span></div>
+          <span class="pc-title">clinical-note.txt · redacted</span>
+          <span class="pc-badge">✓ 9 entities · 12 ms</span>
+        </div>
+        <div class="pc-body">
+          <div class="pc-pane left">
+            <div class="pc-label">Source</div>
+            <div class="pc-code">Patient: Eleanor R. Whitfield
+MRN:     BWH-47882910
+DOB:     03/14/1968
+SSN:     412-55-7891
+Phone:   (617) 555-0134
+NPI:     1538296472
+Visit:   04/02/2026 — chest discomfort.</div>
+          </div>
+          <div class="pc-axis">→</div>
+          <div class="pc-pane">
+            <div class="pc-label">Redacted</div>
+            <div class="pc-code">Patient: <span class="rs redact">[REDACTED:PERSON]</span>
+MRN:     <span class="rs hash">MRN_HASH:4f2a…c91</span>
+DOB:     <span class="rs mask">**********</span>
+SSN:     <span class="rs hash">SSN_HASH:7d1c…88e</span>
+Phone:   <span class="rs mask">**************</span>
+NPI:     <span class="rs hash">NPI_HASH:2b03…47f</span>
+Visit:   <span class="rs mask">**********</span> — chest discomfort.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REDACTION DESK -->
+      <section class="desk" id="desk" aria-label="Redaction desk">
+        <div class="desk-head">
+          <h2 class="desk-title"><span class="desk-n">02</span> Redaction Desk</h2>
+          <div class="desk-tools">
+            <div class="samples">
+              <span class="samples-label">Load sample →</span>
+              <button class="sample-btn" data-sample="medical">Medical Note</button>
+              <button class="sample-btn" data-sample="insurance">Insurance Claim</button>
+              <button class="sample-btn" data-sample="financial">Financial Statement</button>
+              <button class="sample-btn" data-sample="incident">Incident Report</button>
+            </div>
+            <span id="char-counter" class="counter" title="Character count">0 chars</span>
+          </div>
+        </div>
+
+        <div id="dropzone" class="dropzone" aria-label="Upload zone" tabindex="0">
+          <svg class="icon"><use href="/static/icons.svg#upload" /></svg>
+          <span>Drop a .txt file here or click Upload in the toolbar</span>
+        </div>
+
+        <div class="split" id="editor">
+          <section class="pane source" aria-label="Source">
+            <header class="pane-head">
+              <div class="pane-label">
+                <span class="label-dot src"></span>
+                <span class="label-text">Source</span>
+              </div>
+              <div class="pane-meta">
+                <span class="kbd">Ctrl</span><span class="kbd">↵</span>
+                <button class="btn sm ghost" id="paste-btn">Paste</button>
+              </div>
+            </header>
+            <textarea id="original" placeholder="Paste a clinical note, insurance claim, or financial statement containing PHI/PII…" aria-label="Source text"></textarea>
+          </section>
+
+          <div class="desk-axis" aria-hidden="true">
+            <div class="axis-line"></div>
+            <div class="axis-bubble">→</div>
+            <div class="axis-line"></div>
+          </div>
+
+          <section class="pane output" aria-label="Redacted output">
+            <header class="pane-head">
+              <div class="pane-label">
+                <span class="label-dot out"></span>
+                <span class="label-text">Redacted</span>
+              </div>
+              <div class="pane-meta">
+                <button class="btn sm ghost" id="copy-btn">
+                  <svg class="icon xs"><use href="/static/icons.svg#copy" /></svg>
+                  Copy
+                </button>
+              </div>
+            </header>
+            <div id="deid-view" class="deid-view" aria-live="polite">
+              <div class="ghost">Redacted output will appear here once you click <strong>Redact</strong>.</div>
+            </div>
+            <textarea id="deid" readonly hidden aria-hidden="true"></textarea>
+          </section>
+        </div>
+
+        <div class="legend" aria-label="Legend">
+          <span class="lg-item"><i class="swatch sw-hash"></i>Hash&nbsp;(SSN, NPI, MRN, HICN…)</span>
+          <span class="lg-item"><i class="swatch sw-mask"></i>Mask&nbsp;(Phone, Credit Card, IBAN, Date…)</span>
+          <span class="lg-item"><i class="swatch sw-redact"></i>Redact&nbsp;(Person, Address, ZIP, URL, IP…)</span>
+        </div>
+      </section>
+
+      <section id="files-tabs" class="tabs hidden" aria-label="File results">
+        <div class="tablist" role="tablist" id="file-tablist"></div>
+        <div id="file-panels"></div>
+      </section>
+
+      <!-- REGISTRY -->
+      <section class="registry card" aria-label="Detected entities registry">
+        <header class="registry-head">
+          <h2 class="desk-title"><span class="desk-n">03</span> Detected Entities · Audit Ledger</h2>
+          <div class="registry-tools">
+            <div class="search">
+              <svg class="icon xs"><use href="/static/icons.svg#search" /></svg>
+              <input id="search-input" class="input" type="search" placeholder="Search values (Ctrl/Cmd+K)" aria-label="Search entities" />
+            </div>
+            <select id="label-filter" class="select" multiple size="4" aria-label="Label filter (multi-select)">
+              <option value="">Labels: All</option>
+            </select>
+            <select id="action-filter" class="select" aria-label="Action filter">
+              <option value="">Action: All</option>
+              <option value="mask">mask</option>
+              <option value="hash">hash</option>
+              <option value="redact">redact</option>
+            </select>
+            <div class="range-wrap" title="Min text length">
+              <label for="minlen-range" class="sr-only">Min length</label>
+              <input id="minlen-range" class="range" type="range" min="0" max="20" step="1" value="0" aria-label="Min length" />
+              <span id="minlen-value" class="counter small">0</span>
+            </div>
+            <select id="sort-by" class="select" aria-label="Sort by">
+              <option value="start">Sort by Start</option>
+              <option value="label">Sort by Label</option>
+              <option value="length">Sort by Length</option>
+            </select>
+            <button id="clear-filters" class="btn sm ghost" title="Clear filters">Reset</button>
+          </div>
+        </header>
+
+        <div class="ledger-wrap">
+          <table class="ledger">
+            <thead>
+              <tr>
+                <th class="c-idx">#</th>
+                <th class="c-label">Label</th>
+                <th class="c-sample">Matched Value</th>
+                <th class="c-action">Action</th>
+                <th class="c-span">Span</th>
+              </tr>
+            </thead>
+            <tbody id="entities-body">
+              <tr class="empty"><td colspan="5">No entities detected. Paste text and press Redact.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="registry-foot">
+          <div class="pagination">
+            <button class="btn sm ghost" id="prev-page">← Prev</button>
+            <span id="page-info" class="counter">Page 1</span>
+            <button class="btn sm ghost" id="next-page">Next →</button>
+          </div>
+          <div class="stamp">
+            <span class="stamp-line"></span>
+            <span class="stamp-text">Signed · aegis-deid engine</span>
+            <span class="stamp-line"></span>
+          </div>
+        </footer>
+      </section>
+
+      <!-- DETECTOR GRID -->
+      <section class="block" id="detection">
+        <div class="block-head">
+          <div class="block-num">Pattern Ladder</div>
+          <div>
+            <h2 class="block-title">What the engine <em>sees</em>.</h2>
+            <p class="block-lede">
+              Every detector is prioritized. Structured identifiers — SSN, NPI, credit card,
+              MRN — outrank generic NER spans on overlap so a patient ID never gets silently
+              merged into a person name. All patterns live in <code>app/deid/regex_rules.py</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="detect-grid">
+          <div class="detect-cell">
+            <span class="code">SSN</span>
+            <div class="name">Social Security</div>
+            <div class="desc">AAA-GG-SSSS with 000/666/9xx prefix guards. Hashed, never stored plain.</div>
+            <span class="action hash">Hash</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">SIN</span>
+            <div class="name">Social Insurance</div>
+            <div class="desc">9-digit social insurance grouped 3-3-3 with space or hyphen separators.</div>
+            <span class="action hash">Hash</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">NPI</span>
+            <div class="name">Provider ID</div>
+            <div class="desc">10-digit National Provider Identifier, labeled or in-context with "provider".</div>
+            <span class="action hash">Hash</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">DEA</span>
+            <div class="name">DEA Number</div>
+            <div class="desc">Controlled-substance prescriber ID: 2 letters + 7 digits.</div>
+            <span class="action hash">Hash</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">MRN</span>
+            <div class="name">Medical Record #</div>
+            <div class="desc">Hospital-prefixed record IDs (e.g. <code>BWH-47882910</code>) with context anchoring.</div>
+            <span class="action hash">Hash</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">HICN / MBI</span>
+            <div class="name">Medicare Claim</div>
+            <div class="desc">Medicare beneficiary identifiers in the newer MBI layout.</div>
+            <span class="action hash">Hash</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">HEALTH_CARD</span>
+            <div class="name">Provincial Health</div>
+            <div class="desc">Provincial health card numbers (e.g. 4532-281-947-AB).</div>
+            <span class="action hash">Hash</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">PASSPORT</span>
+            <div class="name">Passport</div>
+            <div class="desc">1 letter + 8 digits or 9 digits with context anchoring.</div>
+            <span class="action hash">Hash</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">CREDIT_CARD</span>
+            <div class="name">Payment Card</div>
+            <div class="desc">13–19 digit PAN with hyphen/space grouping. Masked by default.</div>
+            <span class="action mask">Mask</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">ABA</span>
+            <div class="name">Routing Number</div>
+            <div class="desc">9-digit ABA routing numbers, labeled as "ABA" or "routing".</div>
+            <span class="action mask">Mask</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">IBAN</span>
+            <div class="name">International Bank</div>
+            <div class="desc">Country prefix + check digits + BBAN — wire-instruction traces.</div>
+            <span class="action mask">Mask</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">PHONE</span>
+            <div class="name">NANP Phone</div>
+            <div class="desc">All North American Numbering Plan formats: (xxx) xxx-xxxx, +1 xxx, dotted…</div>
+            <span class="action mask">Mask</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">DATE</span>
+            <div class="name">Clinical Date</div>
+            <div class="desc">MM/DD/YYYY, YYYY-MM-DD — admission, DOB, visit timestamps.</div>
+            <span class="action mask">Mask</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">EMAIL</span>
+            <div class="name">Email Address</div>
+            <div class="desc">RFC-lite recognizer hashed to preserve join keys across datasets.</div>
+            <span class="action hash">Hash</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">STREET</span>
+            <div class="name">Street Address</div>
+            <div class="desc">Number + name + Street/Ave/Blvd/Pkwy suffix with directional prefix.</div>
+            <span class="action redact">Redact</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">ZIP / POSTAL</span>
+            <div class="name">Postal Codes</div>
+            <div class="desc">ZIP 5 or 9 digit, alphanumeric <code>A1A 1A1</code> postal code.</div>
+            <span class="action redact">Redact</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">PERSON</span>
+            <div class="name">Name (NER)</div>
+            <div class="desc">spaCy <code>en_core_web_sm</code> — first/last name detection, redacted by default.</div>
+            <span class="action redact">Redact</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">GPE · LOC</span>
+            <div class="name">Places (NER)</div>
+            <div class="desc">Cities, states, countries and geopolitical entities from NER.</div>
+            <span class="action redact">Redact</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">IP</span>
+            <div class="name">IPv4</div>
+            <div class="desc">Dotted-quad IPs in audit trails and access logs.</div>
+            <span class="action redact">Redact</span>
+          </div>
+          <div class="detect-cell">
+            <span class="code">URL</span>
+            <div class="name">Web URL</div>
+            <div class="desc">HTTP(S) URLs — portal sessions, cloud dashboards, file links.</div>
+            <span class="action redact">Redact</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- POLICY TABLE -->
+      <section class="block" id="policies">
+        <div class="block-head">
+          <div class="block-num">Policy Actions</div>
+          <div>
+            <h2 class="block-title">Three modes, per <em>label</em>.</h2>
+            <p class="block-lede">
+              Each category maps to exactly one action in a <code>POLICY_MAP</code> dict.
+              <strong>Mask</strong> replaces every character with <code>*</code> to preserve
+              column width. <strong>Hash</strong> emits a salted SHA-256 so records can
+              still be joined or counted. <strong>Redact</strong> swaps the value for a
+              <code>[REDACTED:LABEL]</code> tag when the span should vanish entirely.
+            </p>
+          </div>
+        </div>
+
+        <table class="policy-table">
+          <thead>
+            <tr>
+              <th style="width: 18%">Label</th>
+              <th style="width: 38%">Input</th>
+              <th style="width: 12%">Action</th>
+              <th>Output</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="op">SSN</td><td class="in">412-55-7891</td><td class="op">hash</td><td class="out hash">SSN_HASH:7d1c45…a23988e</td></tr>
+            <tr><td class="op">NPI</td><td class="in">NPI# 1538296472</td><td class="op">hash</td><td class="out hash">NPI_HASH:2b039f…89c47f</td></tr>
+            <tr><td class="op">MRN</td><td class="in">BWH-47882910</td><td class="op">hash</td><td class="out hash">MRN_HASH:4f2a11…7ffc91</td></tr>
+            <tr><td class="op">CREDIT_CARD</td><td class="in">4532 8827 1104 9951</td><td class="op">mask</td><td class="out mask">*******************</td></tr>
+            <tr><td class="op">PHONE_US</td><td class="in">(617) 555-0134</td><td class="op">mask</td><td class="out mask">**************</td></tr>
+            <tr><td class="op">DATE</td><td class="in">04/02/2026</td><td class="op">mask</td><td class="out mask">**********</td></tr>
+            <tr><td class="op">PERSON</td><td class="in">Eleanor R. Whitfield</td><td class="op">redact</td><td class="out redact">[REDACTED:PERSON]</td></tr>
+            <tr><td class="op">US_STREET</td><td class="in">482 Commonwealth Avenue</td><td class="op">redact</td><td class="out redact">[REDACTED:ADDRESS]</td></tr>
+            <tr><td class="op">IP</td><td class="in">72.14.212.85</td><td class="op">redact</td><td class="out redact">[REDACTED:IP]</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ARCHITECTURE -->
+      <section class="block" id="architecture">
+        <div class="block-head">
+          <div class="block-num">Stack</div>
+          <div>
+            <h2 class="block-title">Under the <em>hood</em>.</h2>
+            <p class="block-lede">
+              FastAPI service with a Pydantic-validated transport, a SlowAPI rate limiter
+              and a 1 MB body cap. Detection runs in-process; long-running evaluation jobs
+              hand off to Celery over Redis. Metrics persist in Postgres for auditability.
+            </p>
+          </div>
+        </div>
+
+        <div class="arch">
+<pre><span class="c"># ─────────────────────────────────────────────────────────────
+# Request path
+# ─────────────────────────────────────────────────────────────</span>
+   client                    <span class="k">fastapi</span>                          <span class="k">deid engine</span>
+     │                          │                                 │
+     │  POST /api/v1/deid       │                                 │
+     ├─────────────────────────▶│  require_api_key · rate_limit   │
+     │                          │  max_body 1MB · max_text_size   │
+     │                          ├────────────────────────────────▶│
+     │                          │                                 │  spaCy NER
+     │                          │                                 │  en_core_web_sm
+     │                          │                                 │   │
+     │                          │                                 │   ▼
+     │                          │                                 │  regex ladder
+     │                          │                                 │  <span class="v">PATTERNS[]</span> sorted
+     │                          │                                 │  by priority
+     │                          │                                 │   │
+     │                          │                                 │   ▼
+     │                          │                                 │  <span class="k">POLICY_MAP</span>
+     │                          │                                 │  SSN→hash  PHONE→mask
+     │                          │                                 │  NAME→redact  DATE→mask
+     │                          │                                 │   │
+     │  { result_text,          │  JSONResponse                   │   ▼
+     │◀─  entities, time_ms } ◀─┤◀────────────────────────────────┤  span resolution
+     │                          │                                 │  (priority · length · start)
+
+<span class="c"># ─────────────────────────────────────────────────────────────
+# Async jobs · long evaluations
+# ─────────────────────────────────────────────────────────────</span>
+   fastapi ──enqueue──▶ <span class="k">celery</span> ──▶ <span class="k">redis</span> broker ──▶ worker ──▶ <span class="k">postgres</span> <span class="v">MetricRun</span></pre>
+        </div>
+      </section>
+
+      <!-- SPEC SHEET -->
+      <section class="spec">
+        <header class="spec-head">
+          <h2 class="desk-title"><span class="desk-n">07</span> Technical Spec</h2>
+          <span class="spec-sub">Everything under the hood</span>
+        </header>
+        <div class="spec-grid">
+          <article class="spec-item">
+            <div class="spec-k">Detection</div>
+            <div class="spec-v">spaCy <code>en_core_web_sm</code> NER + prioritized regex rules (<code>PATTERNS</code> ladder). Overlaps resolved by priority / length / start.</div>
+          </article>
+          <article class="spec-item">
+            <div class="spec-k">Policies</div>
+            <div class="spec-v"><code>mask</code> replaces every char with <code>*</code>; <code>redact</code> inserts <code>[REDACTED:LABEL]</code>; <code>hash</code> emits <code>LABEL_HASH:&lt;SHA-256(salt‖value)&gt;</code>.</div>
+          </article>
+          <article class="spec-item">
+            <div class="spec-k">Gov't &amp; healthcare IDs</div>
+            <div class="spec-v">SSN · SIN · NPI · DEA · Passport · MRN · HICN / MBI · Provincial health card · MM/DD/YYYY + ISO dates</div>
+          </article>
+          <article class="spec-item">
+            <div class="spec-k">Financial &amp; location</div>
+            <div class="spec-v">Credit card · ABA routing · IBAN · Street address · ZIP / ZIP+4 · Postal code <code>A1A 1A1</code></div>
+          </article>
+          <article class="spec-item">
+            <div class="spec-k">Transport</div>
+            <div class="spec-v"><code>POST /api/v1/deid</code> (single) · <code>POST /api/v1/deid/file</code> (batch) · Celery job queue endpoints for long-running evaluation.</div>
+          </article>
+          <article class="spec-item">
+            <div class="spec-k">Auth &amp; limits</div>
+            <div class="spec-v"><code>X-API-Key</code> header, SlowAPI rate-limiter (30/min), 1 MB request body cap, configurable <code>MAX_TEXT_SIZE</code>.</div>
+          </article>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="colophon">
+      <div class="colophon-inner">
+        <div class="colophon-block">
+          <div class="colophon-k">Engine</div>
+          <div class="colophon-v">FastAPI · Pydantic v2 · spaCy · SQLAlchemy · Celery · Redis · Postgres</div>
+        </div>
+        <div class="colophon-block">
+          <div class="colophon-k">Detection</div>
+          <div class="colophon-v">spaCy NER + prioritized regex ladder · deterministic span resolution</div>
+        </div>
+        <div class="colophon-block right">
+          <div class="colophon-k">Source</div>
+          <div class="colophon-v"><a href="https://github.com/stelioszach03/aegis-deid" target="_blank" rel="noopener">github.com/stelioszach03/aegis-deid</a></div>
+        </div>
+      </div>
+      <div class="colophon-rule"></div>
+      <div class="colophon-caption">
+        Built by <span class="author">Stelios Zacharioudakis</span>
+        — a portfolio-grade privacy engineering study in entity recognition &amp; policy orchestration.
+      </div>
+    </footer>
+
+    <dialog id="eval-modal" class="modal">
+      <div class="modal-content">
+        <h3>Last Evaluation</h3>
+        <div id="eval-content" class="mono small">Loading…</div>
+        <div class="modal-actions">
+          <button class="btn" id="close-eval">Close</button>
+        </div>
+      </div>
+    </dialog>
+
+    <div id="toaster" class="toaster" role="status" aria-live="polite"></div>
+
+    <script src="/static/toaster.js?v={{ version }}" defer></script>
+    <script src="/static/app.js?v={{ version }}" defer></script>
+  </body>
+</html>
