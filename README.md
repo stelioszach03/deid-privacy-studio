@@ -11,6 +11,8 @@ interactive Jinja UI for side-by-side review.
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009485.svg)](https://fastapi.tiangolo.com/)
 [![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)](#quickstart)
 
+**[Live Studio](https://stelioszach.com/aegis-deid/)**  ·  **[API Health](https://stelioszach.com/aegis-deid/api/v1/health)**  ·  **[API Docs](https://stelioszach.com/aegis-deid/docs)**
+
 ---
 
 ## What it detects
