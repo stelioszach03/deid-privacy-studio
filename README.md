@@ -1,17 +1,22 @@
+<div align="center">
+
+[![CI](https://github.com/stelioszach03/deid-privacy-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/stelioszach03/deid-privacy-studio/actions)
+
 # Aegis DeID — PHI / PII Redaction Studio
 
-Policy-governed de-identification for clinical and financial text. A FastAPI
-service that detects 20+ categories of protected health information (PHI) and
-personally identifiable information (PII), then applies per-label
-**mask / hash / redact** policies to rewrite the source safely — with an
-interactive Jinja UI for side-by-side review.
+**Policy-governed de-identification for clinical and financial text with 20+ entity types, per-label mask/hash/redact policies, and an interactive side-by-side studio.**
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Python](https://img.shields.io/badge/python-3.11-blue.svg)](./requirements.txt)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009485.svg)](https://fastapi.tiangolo.com/)
-[![Docker](https://img.shields.io/badge/docker-compose-2496ED.svg)](#quickstart)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![spaCy](https://img.shields.io/badge/spaCy-NER-09A3D5?style=flat-square&logo=spacy&logoColor=white)](https://spacy.io/)
+[![Redis](https://img.shields.io/badge/Redis-Celery-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b?style=flat-square)](LICENSE)
 
 **[Live Studio](https://stelioszach.com/aegis-deid/)**  ·  **[API Health](https://stelioszach.com/aegis-deid/api/v1/health)**  ·  **[API Docs](https://stelioszach.com/aegis-deid/docs)**
+
+</div>
 
 ---
 
