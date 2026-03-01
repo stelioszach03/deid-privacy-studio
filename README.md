@@ -2,13 +2,13 @@
 
 GDPR/HIPAA‑minded text de‑identification for English and Greek: detect PHI/PII and transform it (mask/hash/redact) via a simple API and UI.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/OWNER/REPO/ci.yml?label=CI)](./.github/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/stelioszach03/aegis-deid/ci.yml?label=CI)](./.github/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-%E2%89%A585%25-brightgreen.svg)](#testing--coverage)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Docker image size](https://img.shields.io/badge/docker-~300MB-informational.svg)](#quickstart)
 
 
-## Screenshots (placeholders)
+## Screenshots
 
 - UI Home (dark)
 
