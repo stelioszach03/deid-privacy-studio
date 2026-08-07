@@ -4,7 +4,7 @@
 
 # Aegis DeID — PHI / PII Redaction Studio
 
-**Policy-governed de-identification for clinical and financial text with 20+ entity types, per-label mask/hash/redact policies, and an interactive side-by-side studio.**
+**Policy-governed de-identification for clinical and financial text: 25 entity types, per-label mask/hash/redact policies, and an interactive side-by-side studio.**
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -39,8 +39,16 @@ identifiers always beat noisier NER spans.
 | Technical          | `URL`, `IP`                                                       | redact         |
 | NER (spaCy)        | `PERSON`, `ORG`                                                   | redact         |
 
-The full policy map lives in `app/deid/engine.py::POLICY_MAP` and can be
-overridden at runtime via `PUT /api/v1/config`.
+The full policy map lives in `app/deid/engine.py::POLICY_MAP` — **25 labels**,
+the table above listing all of them — and can be overridden at runtime via
+`PUT /api/v1/config`.
+
+> **No detection quality is measured yet.** For PHI redaction the number that
+> matters is recall per label (a false negative is a leak), and this repo does
+> not have one. `scripts/evaluate.py` computes per-label P/R/F1/FNR, but the only
+> labelled data present is `scripts/dataset.jsonl` — **20 synthetic records**,
+> and its label set (`AMKA`, `PHONE_GR`) predates the current `POLICY_MAP`.
+> Treat this as a working redaction engine, not a validated one.
 
 ## Policy actions
 
@@ -210,11 +218,29 @@ Covered areas:
 
 ---
 
-## Screenshots
+## The studio UI
+
+Single page, no build step — served at `/`:
 
 - Redaction desk with side-by-side source/output and highlighted spans
 - Audit ledger of detected entities, filterable by label / action / length
-- Policy / architecture panel in the footer of the single-page UI
+- Policy / architecture panel in the footer
+
+---
+
+## Limitations
+
+- **No measured precision/recall.** See the note above — there is no validated
+  quality figure for any label, so this must not be used on real PHI.
+- **English only.** The spaCy model is `en_core_web_sm`; the regex ladder covers
+  US and Canadian identifier formats.
+- **Regex ladder ≠ recall guarantee.** Structured IDs are matched by pattern, so
+  any format outside the ladder (unusual MRN schemes, international addresses)
+  is silently missed.
+- **`hash` is deterministic by design.** A fixed `DEID_SALT` keeps hashes
+  joinable across datasets, which also means low-cardinality fields are
+  vulnerable to dictionary attack. Rotate the salt per release if that matters.
+- **Policy edits via `PUT /api/v1/config` are in-memory** and reset on restart.
 
 ---
 
@@ -226,7 +252,7 @@ Built by **Stelios Zacharioudakis** as a portfolio-grade study in privacy
 engineering: entity recognition, policy orchestration and deterministic span
 rewriting. Part of the **Aegis suite**:
 
-- [Graph Fraud Command Center](https://github.com/stelioszach03/graph-fraud-command-center) — GNN-based payment fraud detection
-- [NYC Subway Anomaly](https://github.com/stelioszach03/nyc-subway-anomaly) — streaming anomaly detection on live transit
+- [Graph Fraud Command Center](https://github.com/stelioszach03/graph-fraud-command-center) — real-time graph fraud scoring
+- [NYC Subway Anomaly Detection](https://github.com/stelioszach03/NYC-Subway-Anomaly-Detection) — streaming anomaly detection on live transit
 - [AML Graph Investigator](https://github.com/stelioszach03/aml-graph-investigator) — graph-native AML case explainer
 - **Aegis DeID** — this repo
