@@ -1,5 +1,9 @@
 # DeID Privacy Studio
 
+**[Live demo — Try text de-identification](https://stelioszach.com/demos/deid/)** · [Deployed adapter and UI source](https://github.com/stelioszach03/stelioszach-portfolio/tree/main/demo-services/deid)
+
+The live workspace runs the bounded English-language CPU adapter, with fabricated examples and an inspectable review flow. This repository contains the broader library/API prototype; its database, file and worker features are not all exposed in the public demo. Use synthetic text only: missed identifiers and linkable pseudonyms remain possible.
+
 A text-redaction prototype for exploring entity detection, overlap resolution and configurable privacy transformations on synthetic English-language examples.
 
 ## Implementation
