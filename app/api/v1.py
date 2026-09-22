@@ -19,12 +19,12 @@ router = APIRouter()
 
 # --- In-memory policy/config state for MVP ---
 class PolicyConfig(BaseModel):
-    policy_map: Dict[str, str]
+    policy_map: Dict[str, Literal["mask", "hash", "redact"]]
     default_policy: Literal["mask", "hash", "redact"]
 
 
 class PolicyUpdate(BaseModel):
-    policy_map: Optional[Dict[str, str]] = None
+    policy_map: Optional[Dict[str, Literal["mask", "hash", "redact"]]] = None
     default_policy: Optional[Literal["mask", "hash", "redact"]] = None
 
 

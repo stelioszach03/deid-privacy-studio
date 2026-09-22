@@ -105,3 +105,15 @@ def sample_texts() -> Dict[str, str]:
 def data_dir(tmp_path_factory) -> Path:
     root = Path(__file__).resolve().parent / "data"
     return root
+
+
+@pytest.fixture(autouse=True)
+def isolated_rate_limits(env):
+    """A deliberate 429 probe must not consume the next test's request budget."""
+    from app.api.security import _rate_store
+    from app.core.limiter import limiter
+    _rate_store.clear()
+    limiter.reset()
+    yield
+    _rate_store.clear()
+    limiter.reset()

@@ -6,7 +6,7 @@ from .recognizers import detect_entities, recognize
 from .policies import apply_policies, hash_value, mask_value, redact_value
 
 
-# Default US / CA-focused policy mapping — HIPAA Safe Harbor + PIPEDA aligned
+# Default US / CA-focused demonstration policy mapping; not a compliance certification.
 POLICY_MAP: Dict[str, str] = {
     # Named entities (spaCy NER)
     "PERSON": "redact",
@@ -79,6 +79,9 @@ def _canonical_label(label: str) -> str:
 
 class DeidEngine:
     def __init__(self, policy_map: Dict[str, str], salt: str, default_policy: str) -> None:
+        allowed = {"mask", "hash", "redact"}
+        if default_policy not in allowed or any(value not in allowed for value in (policy_map or {}).values()):
+            raise ValueError("Unsupported policy action")
         self.policy_map = dict(policy_map or {})
         self.salt = salt or ""
         self.default_policy = default_policy
@@ -137,7 +140,7 @@ class DeidEngine:
             elif action == "hash":
                 replacement = hash_value(value, self.salt, canon)
             else:
-                replacement = value  # unknown action -> passthrough
+                raise ValueError("Unsupported policy action")
 
             result_parts.append(replacement)
             results_meta.append({

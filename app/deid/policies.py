@@ -33,8 +33,7 @@ def apply_policy_span(
     elif policy == "hash":
         replacement = hash_value(original, salt, label)
     else:
-        # Fallback: keep original to avoid data loss on unknown policy
-        replacement = original
+        raise ValueError("Unsupported policy action")
 
     new_text = text[:start] + replacement + text[end:]
     return new_text, replacement

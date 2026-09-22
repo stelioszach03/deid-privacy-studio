@@ -1,52 +1,40 @@
 # DeID Privacy Studio
 
-Policy-governed PHI/PII redaction for clinical and financial text: 25 entity types, per-label mask/hash/redact policies, spaCy NER layered on a prioritized regex ladder.
+A text-redaction prototype for exploring entity detection, overlap resolution and configurable privacy transformations on synthetic English-language examples.
 
-**[Live demo](https://stelioszach.com/demos/deid/)**
+## Implementation
 
-[![CI](https://github.com/stelioszach03/deid-privacy-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/stelioszach03/deid-privacy-studio/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b?style=flat-square)](LICENSE)
+[The engine](app/deid/engine.py) supports 25 policy labels and three actions: width-preserving masking, salted SHA-256 pseudonyms and explicit redaction markers. [Recognizers](app/deid/recognizers.py) combine prioritized US/Canadian identifier patterns with an optional spaCy English NER model. Structured patterns take precedence when spans overlap.
 
-## Results
+Unknown policy actions are rejected by both the API schema and engine instead of silently returning the original value. Policy changes are in-memory and reset on restart. The API provides text/file processing, configuration and optional Celery jobs.
 
-| Claim | Value | Evidence |
-|---|---|---|
-| Entity types | 25 labels | [`app/deid/engine.py`](app/deid/engine.py) `POLICY_MAP` |
-| Policy actions | `mask` (width-preserving `*`), `hash` (salted SHA-256), `redact` (`[REDACTED:LABEL]`) | [`app/deid/policies.py`](app/deid/policies.py) |
-| Span resolution | deterministic by `(priority, length, start)` — structured IDs beat NER spans | [`app/deid/recognizers.py`](app/deid/recognizers.py) |
-| Detection precision / recall | **not measured** | — |
-
-The 25 labels: `ADDRESS`, `CREDIT_CARD`, `DATE`, `DEA`, `EMAIL`, `GPE`, `HEALTH_CARD_CA`, `HICN`, `IBAN`, `IP`, `LOC`, `MRN`, `NPI`, `ORG`, `PASSPORT_US`, `PERSON`, `PHONE_INTL`, `PHONE_US`, `POSTAL_CA`, `ROUTING`, `SIN_CA`, `SSN`, `URL`, `US_STREET`, `ZIP_US`.
-
-**No detection quality is measured.** For PHI redaction the number that matters is recall per label — a false negative is a leak — and this repo does not have one. `scripts/evaluate.py` computes per-label P/R/F1/FNR, but the only labelled data present is `scripts/dataset.jsonl`: 20 synthetic records whose label set (`AMKA`, `PHONE_GR`) predates the current `POLICY_MAP`. Treat this as a working redaction engine, not a validated one.
-
-## Run
+## Run locally
 
 ```bash
+cp .env.example .env
+# Set API_KEY and a fresh DEID_SALT in .env before exposing the API.
 docker compose up -d --build
 docker compose exec -T api alembic upgrade head
-open http://localhost:8000
 ```
 
-Local venv:
+For a Python environment:
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt && python -m spacy download en_core_web_sm
-alembic upgrade head && uvicorn app.main:app --reload
-pytest -q
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m spacy download en_core_web_sm
+uvicorn app.main:app --reload
 ```
 
-All `/api/v1/*` routes require an `X-API-Key` header. `POST /api/v1/deid` redacts a text block and returns per-entity spans and actions; `POST /api/v1/deid/file` handles multipart uploads; `GET`/`PUT /api/v1/config` read and override the policy map at runtime; Celery-backed jobs live under `/api/v1/jobs/`.
+The default development URL is `http://localhost:8000`. When configured, `API_KEY` protects `/api/v1/*` except health; an empty key intentionally permits demo access. Never expose that default to sensitive data.
 
-## Limitations
+## Verification and scope
 
-- **No measured precision or recall**, per above. This must not be run on real PHI.
-- **English only.** The spaCy model is `en_core_web_sm` and the regex ladder covers US and Canadian identifier formats.
-- **A regex ladder is not a recall guarantee.** Any format outside the ladder — unusual MRN schemes, international addresses — is silently missed.
-- **`hash` is deterministic by design.** A fixed `DEID_SALT` keeps hashes joinable across datasets, which also makes low-cardinality fields vulnerable to a dictionary attack. Rotate the salt per release if that matters.
-- Policy edits via `PUT /api/v1/config` are in-memory and reset on restart.
+Run `python -m pytest` for the repository suite. The regex/policy/API subset runs without model downloads; database/worker tests require their services, and NER behavior requires the spaCy model. The tests isolate rate-limit state so a deliberate 429 test does not affect later requests.
 
-## License
+No representative per-label precision/recall evaluation is available. The committed 20-record synthetic generator fixture includes older Greek labels that do not match the current English-focused policy map. The engine falls back to regex-only detection when NER is unavailable; unrecognized names or identifier formats can remain in the output. Deterministic hashes remain linkable and are not anonymization.
 
-MIT — see [LICENSE](LICENSE).
+This is not a clinical tool, a privacy guarantee, or evidence of HIPAA/GDPR/PIPEDA compliance. Use synthetic examples, not patient records or private financial data.
+
+MIT licensed. See [LICENSE](LICENSE).

@@ -8,8 +8,8 @@ Layers:
   3. Dedupe by (priority, length, position) so structured rules win
      over noisy NER spans on overlap.
 
-Greek-language support has been removed — this recognizer is optimized
-for HIPAA Safe Harbor and PIPEDA workloads.
+Greek-language support has been removed — this prototype targets
+English-language examples and does not establish legal compliance.
 """
 from dataclasses import dataclass
 from typing import Dict, List, Optional
