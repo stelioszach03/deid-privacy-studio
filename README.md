@@ -6,6 +6,14 @@ The live workspace runs the bounded English-language CPU adapter, with fabricate
 
 A text-redaction prototype for exploring entity detection, overlap resolution and configurable privacy transformations on synthetic English-language examples.
 
+## Inspect the live engineering work
+
+The [review-workflow case study](https://github.com/stelioszach03/stelioszach-portfolio/blob/main/case-studies/deid-review.md) explains the problem, design decisions, a one-minute walkthrough and reproducible checks for the deployed adapter.
+
+The adapter returns exact per-entity replacements so a reviewer can apply or keep a suggestion locally, add a missed span and undo a decision. Python codepoint offsets are preserved in the browser, including after emoji. Exported metadata distinguishes unreviewed suggestions from confirmed decisions; it never treats review as proof of anonymity. Those interface/adapter additions live in the linked portfolio repository, not this library's API contract.
+
+For a short code review, start with [`DeidEngine.deidentify`](app/deid/engine.py), [overlap resolution](app/deid/recognizers.py) and [transformation helpers](app/deid/policies.py), then compare the smaller [deployed adapter](https://github.com/stelioszach03/stelioszach-portfolio/tree/main/demo-services/deid). The detector uses pretrained spaCy and hand-written patterns; no newly trained NER model or measured accuracy gain is claimed.
+
 ## Implementation
 
 [The engine](app/deid/engine.py) supports 25 policy labels and three actions: width-preserving masking, salted SHA-256 pseudonyms and explicit redaction markers. [Recognizers](app/deid/recognizers.py) combine prioritized US/Canadian identifier patterns with an optional spaCy English NER model. Structured patterns take precedence when spans overlap.
