@@ -1,0 +1,278 @@
+{
+  "completed_at_utc": "2026-09-24T02:42:36.113956+00:00",
+  "engine_commit": "c56f9592a8c00e2c88831c0ebfd6963913f819a9",
+  "freeze_sha256": "d6d4ae2081a2de3d243cec1c7f11b032bfcaaa34646c2c5aad098504de5c2048",
+  "gold_spans_all_labels": 944,
+  "gold_spans_supported_mapping": 855,
+  "latency_ms": {
+    "max": 6.882125,
+    "model_load": 143.79870903212577,
+    "p50_nearest_rank": 2.108125,
+    "p95_nearest_rank": 4.34075
+  },
+  "limitations": [
+    "External synthetic template fixture; not clinical, representative production or compliance evidence.",
+    "Exact label/boundary convention penalizes partial addresses and names; no overlap credit.",
+    "Unsupported gold labels and engine-only labels are separately counted, not silently scored as supported.",
+    "No tuning, training, bootstrap CI or new model contribution; pretrained-model contamination unknown.",
+    "Measurements cover the library engine, not the separately deployed HTTP adapter or browser workflow.",
+    "Single local CPU process; inference latency includes transformations and excludes model load/warm-up."
+  ],
+  "long_unicode_stress": [
+    {
+      "all_output_spans_in_bounds": true,
+      "exact_email_matches": 1,
+      "expected_emails": 1,
+      "extra_email_spans": 0,
+      "latency_ms": 1.8645,
+      "repetitions": 1,
+      "source_email_removed": true,
+      "unicode_codepoints": 51,
+      "utf8_bytes": 70
+    },
+    {
+      "all_output_spans_in_bounds": true,
+      "exact_email_matches": 100,
+      "expected_emails": 100,
+      "extra_email_spans": 0,
+      "latency_ms": 80.365375,
+      "repetitions": 100,
+      "source_email_removed": true,
+      "unicode_codepoints": 5100,
+      "utf8_bytes": 7000
+    },
+    {
+      "all_output_spans_in_bounds": true,
+      "exact_email_matches": 1000,
+      "expected_emails": 1000,
+      "extra_email_spans": 0,
+      "latency_ms": 837.177042,
+      "repetitions": 1000,
+      "source_email_removed": true,
+      "unicode_codepoints": 51000,
+      "utf8_bytes": 70000
+    },
+    {
+      "all_output_spans_in_bounds": true,
+      "exact_email_matches": 4000,
+      "expected_emails": 4000,
+      "extra_email_spans": 0,
+      "latency_ms": 3613.447959,
+      "repetitions": 4000,
+      "source_email_removed": true,
+      "unicode_codepoints": 204000,
+      "utf8_bytes": 280000
+    }
+  ],
+  "macro_f1_gold_supported_labels": 0.5377441533078715,
+  "micro": {
+    "f1": 0.40205596801827526,
+    "fn": 503,
+    "fp": 544,
+    "precision": 0.39285714285714285,
+    "recall": 0.41169590643274856,
+    "tp": 352
+  },
+  "per_label": {
+    "ADDRESS": {
+      "f1": 0.009569377990430622,
+      "fn": 206,
+      "fp": 1,
+      "precision": 0.5,
+      "recall": 0.004830917874396135,
+      "tp": 1
+    },
+    "CREDIT_CARD": {
+      "f1": 0.9195402298850575,
+      "fn": 7,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 0.851063829787234,
+      "tp": 40
+    },
+    "DATE": {
+      "f1": 0.2518518518518518,
+      "fn": 10,
+      "fp": 192,
+      "precision": 0.1504424778761062,
+      "recall": 0.7727272727272727,
+      "tp": 34
+    },
+    "EMAIL": {
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 21
+    },
+    "GPE": {
+      "f1": 0.4730290456431535,
+      "fn": 77,
+      "fp": 50,
+      "precision": 0.5327102803738317,
+      "recall": 0.4253731343283582,
+      "tp": 57
+    },
+    "IBAN": {
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 4
+    },
+    "IP": {
+      "f1": 0.9230769230769231,
+      "fn": 0,
+      "fp": 1,
+      "precision": 0.8571428571428571,
+      "recall": 1.0,
+      "tp": 6
+    },
+    "ORG": {
+      "f1": 0.1694915254237288,
+      "fn": 49,
+      "fp": 147,
+      "precision": 0.11976047904191617,
+      "recall": 0.2898550724637681,
+      "tp": 20
+    },
+    "PERSON": {
+      "f1": 0.5996204933586338,
+      "fn": 111,
+      "fp": 100,
+      "precision": 0.6124031007751938,
+      "recall": 0.587360594795539,
+      "tp": 158
+    },
+    "PHONE": {
+      "f1": 0.14285714285714285,
+      "fn": 35,
+      "fp": 13,
+      "precision": 0.23529411764705882,
+      "recall": 0.10256410256410256,
+      "tp": 4
+    },
+    "SSN": {
+      "f1": 0.9230769230769231,
+      "fn": 0,
+      "fp": 1,
+      "precision": 0.8571428571428571,
+      "recall": 1.0,
+      "tp": 6
+    },
+    "ZIP": {
+      "f1": 0.04081632653061224,
+      "fn": 8,
+      "fp": 39,
+      "precision": 0.025,
+      "recall": 0.1111111111111111,
+      "tp": 1
+    }
+  },
+  "protocol": "deid-external-synthetic-v1",
+  "rejects_500001_characters": true,
+  "runtime": {
+    "architecture": "arm64",
+    "dependencies": {
+      "Jinja2": "3.1.6",
+      "MarkupSafe": "3.0.3",
+      "Pygments": "2.21.0",
+      "annotated-doc": "0.0.5",
+      "annotated-types": "0.8.0",
+      "blis": "1.3.3",
+      "catalogue": "2.0.10",
+      "certifi": "2026.7.22",
+      "charset-normalizer": "3.5.1",
+      "click": "8.1.8",
+      "cloudpathlib": "0.25.0",
+      "confection": "0.1.5",
+      "cymem": "2.0.13",
+      "en_core_web_sm": "3.8.0",
+      "idna": "3.20",
+      "langcodes": "3.5.1",
+      "markdown-it-py": "4.2.0",
+      "mdurl": "0.1.2",
+      "murmurhash": "1.0.15",
+      "numpy": "2.4.6",
+      "packaging": "26.3",
+      "preshed": "3.0.13",
+      "pydantic": "2.13.5",
+      "pydantic-settings": "2.10.1",
+      "pydantic_core": "2.46.5",
+      "python-dotenv": "1.2.3",
+      "requests": "2.34.2",
+      "rich": "15.0.0",
+      "setuptools": "84.0.0",
+      "shellingham": "1.5.4",
+      "smart_open": "7.7.1",
+      "spacy": "3.8.7",
+      "spacy-legacy": "3.0.12",
+      "spacy-loggers": "1.0.5",
+      "srsly": "2.5.3",
+      "thinc": "8.3.11",
+      "tqdm": "4.70.1",
+      "typer": "0.27.2",
+      "typer-slim": "0.24.0",
+      "typing-inspection": "0.4.4",
+      "typing_extensions": "4.16.0",
+      "urllib3": "2.8.0",
+      "wasabi": "1.1.3",
+      "weasel": "0.4.3",
+      "wrapt": "2.4.1"
+    },
+    "machine": "arm",
+    "model": "3.8.0",
+    "model_files_sha256": {
+      "__init__.py": "c8eb57079c03fc4157c227f641781fbcb3e9d11439abe1bf0b72e4c0fa78a38d",
+      "en_core_web_sm-3.8.0/LICENSE": "3933c176979b68bc6d0bcc902c7d6c130f1d127f476f17ba5cdba8d99cfd0012",
+      "en_core_web_sm-3.8.0/LICENSES_SOURCES": "20d9dfacd215112251f15341edd1a47b1f98bf393a212f10f194ffdc7ee98a90",
+      "en_core_web_sm-3.8.0/README.md": "91b0ed1742ea0803034b4d769c4536e88d9d4da7808d833f2a804b6c54aae220",
+      "en_core_web_sm-3.8.0/accuracy.json": "e7572d7f2f3c18e9921471f9d0b3424f8cf7f1a909ae484fa10b780a13f4c676",
+      "en_core_web_sm-3.8.0/attribute_ruler/patterns": "f8b97f7ebef9b8536bba5f0fc1e73af6183563e96e2325bcbb021b8c6dbc6683",
+      "en_core_web_sm-3.8.0/config.cfg": "65c545ca2da5bd4b87b22d4917318605360b37dee6ed6b18516a036f87319f79",
+      "en_core_web_sm-3.8.0/lemmatizer/lookups/lookups.bin": "eb64f40c0f8396d1762730c0ddf4dad2a52d138f5a389f71a1a1d088173b7737",
+      "en_core_web_sm-3.8.0/meta.json": "7456349002fa8cf31111051bd37fdbea67a1b7f7a0a60ce235466f98a6758125",
+      "en_core_web_sm-3.8.0/ner/cfg": "a7172edadafba9f472e9ac0f2660eec04b6405e471be9e20267b79c67288d22d",
+      "en_core_web_sm-3.8.0/ner/model": "cd93e9ca9126c69f1d10a1039ef67c3d9ec1223b44d079856705970f0f19ff4e",
+      "en_core_web_sm-3.8.0/ner/moves": "d82b13473ebd33e0396004dd22f00c71fe3c1251742bf1f7c4554f23fd3b0af4",
+      "en_core_web_sm-3.8.0/parser/cfg": "e2a240ef01f95e58f5dd4c9d6e90d61f597b8d998966570d3009dd81e8879780",
+      "en_core_web_sm-3.8.0/parser/model": "e0098910535a863d430082ece57455d5fa071cd4ca3a0054e80582076c752b1e",
+      "en_core_web_sm-3.8.0/parser/moves": "ec41318c32eb7f9e4d8f050b2e8466ee67954d2d3455c1aec73abf46c82dd67f",
+      "en_core_web_sm-3.8.0/senter/cfg": "2a4db4a729b6469da1f87d71cc7cd3ed2a73360cc85326821e850836c4671103",
+      "en_core_web_sm-3.8.0/senter/model": "b69e7174a0b6307739adec3c8053ac45fdbad7171c4d3d8bfcd9713ecbc01f8c",
+      "en_core_web_sm-3.8.0/tagger/cfg": "d484c3d9391f37bf9c727aa2eb4c477a24cb103020f95e52dc37842818b50118",
+      "en_core_web_sm-3.8.0/tagger/model": "1ec3d93f38cebe172f2b5c89d84be72856ce42c8f1a64f1699f1d98a771f36b7",
+      "en_core_web_sm-3.8.0/tok2vec/cfg": "f8a5a26e3056eb6fb06deeb3dbccfd88ae74900200c98c70b5966bbb7ec9d4de",
+      "en_core_web_sm-3.8.0/tok2vec/model": "e84fc06eb319c94d28e460fc334e292120b01f18baa5dc8b50c977459820a090",
+      "en_core_web_sm-3.8.0/tokenizer": "b014e8bba4958b120af2d0c1c63eabb7c00379f2bacaf10df7c5325efd2ea467",
+      "en_core_web_sm-3.8.0/vocab/key2row": "76be8b528d0075f7aae98d6fa57a6d3c83ae480a8469e668d7b0af968995ac71",
+      "en_core_web_sm-3.8.0/vocab/lookups.bin": "fce9c883c56165f29573cc938c2a1c9d417ac61bd8f56b671dd5f7996de70682",
+      "en_core_web_sm-3.8.0/vocab/strings.json": "b1966d1f07a05b68576df07f43f40203b4e11124ad82cc839e8312ad8d7fdae7",
+      "en_core_web_sm-3.8.0/vocab/vectors": "14772b683e726436d5948ad3fff2b43d036ef2ebbe3458aafed6004e05a40706",
+      "en_core_web_sm-3.8.0/vocab/vectors.cfg": "ff4359091952c8cd16f1f0482f5770fb82d1707368d5cca3c46aa501f552e3c5",
+      "meta.json": "7456349002fa8cf31111051bd37fdbea67a1b7f7a0a60ce235466f98a6758125"
+    },
+    "os": "Darwin",
+    "python": "3.11.15",
+    "spacy": "3.8.7"
+  },
+  "sample_rows": 500,
+  "started_at_utc": "2026-09-24T02:42:29.959248+00:00",
+  "status": "complete",
+  "supported_gold_coverage": 0.9057203389830508,
+  "templates": 194,
+  "total_elapsed_seconds": 6.154663374996744,
+  "unscored_prediction_counts": {
+    "LOC": 5,
+    "SIN_CA": 2,
+    "URL": 13
+  },
+  "unsupported_gold_counts": {
+    "AGE": 21,
+    "DOMAIN_NAME": 13,
+    "NRP": 24,
+    "TITLE": 31
+  }
+}

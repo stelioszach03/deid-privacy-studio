@@ -1,0 +1,6 @@
+{
+  "status": "preflight_failed",
+  "reason": "spaCy import failed because the resolved environment omitted click. No corpus record processed and no model prediction produced. Installed click8.1.8; engine/evaluator/protocol and sample unchanged.",
+  "completed_corpus_records": 0,
+  "freeze_sha256": "d6d4ae2081a2de3d243cec1c7f11b032bfcaaa34646c2c5aad098504de5c2048"
+}

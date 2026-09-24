@@ -6,6 +6,17 @@ The live workspace runs the bounded English-language CPU adapter, with fabricate
 
 A text-redaction prototype for exploring entity detection, overlap resolution and configurable privacy transformations on synthetic English-language examples.
 
+## Measured external evaluation
+
+A [fixed external synthetic evaluation](artifacts/external-synthetic-v1-run1/REPORT.md)
+of the unchanged library on 500 records measured strict span-and-label micro
+precision **39.29%**, recall **41.17%**, and F1 **40.21%**, with 90.57% of gold
+entities covered by the declared label mapping. Full addresses and several phone
+formats were weak. These limitations remain published; this is not clinical
+validation, an anonymity guarantee or a benchmark of the separate live adapter.
+The report also preserves local CPU timing, Unicode stress results and all
+unsupported-category counts. No model was trained or tuned for this evaluation.
+
 ## Inspect the live engineering work
 
 The [review-workflow case study](https://github.com/stelioszach03/stelioszach-portfolio/blob/main/case-studies/deid-review.md) explains the problem, design decisions, a one-minute walkthrough and reproducible checks for the deployed adapter.
