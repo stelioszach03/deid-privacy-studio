@@ -41,6 +41,18 @@ uvicorn app.main:app --reload
 
 The default development URL is `http://localhost:8000`. When configured, `API_KEY` protects `/api/v1/*` except health; an empty key intentionally permits demo access. Never expose that default to sensitive data.
 
+## Generate upload-size fixtures
+
+The large synthetic upload files are generated locally and ignored by Git:
+
+```bash
+python3 tools/make_big_notes.py --output-dir /tmp/deid-size-fixtures
+```
+
+This writes `note_big_ok.txt` (950,000 bytes) and `note_big_fail.txt`
+(1,200,000 bytes) with fabricated identifiers. They exercise size limits;
+they are not representative accuracy-evaluation data.
+
 ## Verification and scope
 
 Run `python -m pytest` for the repository suite. The regex/policy/API subset runs without model downloads; database/worker tests require their services, and NER behavior requires the spaCy model. The tests isolate rate-limit state so a deliberate 429 test does not affect later requests.

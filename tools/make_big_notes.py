@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import os
+import argparse
+from pathlib import Path
 
 
 def make(path, header, target):
@@ -17,7 +18,14 @@ def make(path, header, target):
     print(path, len(data), "bytes")
 
 
-make("note_big_ok.txt", "OK file (~950KB). Should pass engine + server limit.", 950_000)
+def main():
+    parser = argparse.ArgumentParser(description="Generate synthetic upload-size fixtures locally.")
+    parser.add_argument("--output-dir", type=Path, default=Path("."))
+    args = parser.parse_args()
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    make(args.output_dir / "note_big_ok.txt", "OK file (~950KB). Should pass engine + server limit.", 950_000)
+    make(args.output_dir / "note_big_fail.txt", "FAIL file (~1.2MB). Should trigger 413 body limit.", 1_200_000)
 
-make("note_big_fail.txt", "FAIL file (~1.2MB). Should trigger 413 body limit.", 1_200_000)
 
+if __name__ == "__main__":
+    main()
