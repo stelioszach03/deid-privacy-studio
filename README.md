@@ -17,6 +17,23 @@ validation, an anonymity guarantee or a benchmark of the separate live adapter.
 The report also preserves local CPU timing, Unicode stress results and all
 unsupported-category counts. No model was trained or tuned for this evaluation.
 
+## Structured-span correction — October 9, 2026
+
+A targeted overlap-resolution fix now keeps complete structured dates, street
+addresses and postal codes ahead of conflicting statistical NER predictions.
+Contextual identifier field labels (for example `SSN on file`) remain readable
+when followed by a matching identifier. Acronyms used as names elsewhere are
+not excluded. Seven deterministic regression tests cover these conflicts,
+unchanged names, email priority and Unicode offsets:
+
+```sh
+python -m unittest discover -s tests -p test_structured_precedence.py -v
+```
+
+The 40.21% F1 above is the preserved historical **pre-fix library evaluation**.
+This correction has not been evaluated on a new representative accuracy corpus;
+it must not be described as a new overall F1 result or an anonymity guarantee.
+
 ## Inspect the live engineering work
 
 The [review-workflow case study](https://github.com/stelioszach03/stelioszach-portfolio/blob/main/case-studies/deid-review.md) explains the problem, design decisions, a one-minute walkthrough and reproducible checks for the deployed adapter.

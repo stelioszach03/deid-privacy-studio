@@ -1,5 +1,6 @@
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -20,7 +21,7 @@ def _db_available() -> bool:
 
 def test_generate_synthetic_creates_jsonl(tmp_path):
     out_dir = Path("scripts")
-    cmd = ["python", "scripts/generate_synthetic.py", "--n", "20", "--lang-mix", "0.5"]
+    cmd = [sys.executable, "scripts/generate_synthetic.py", "--n", "20", "--lang-mix", "0.5"]
     subprocess.run(cmd, check=True)
     out = out_dir / "dataset.jsonl"
     assert out.exists()
@@ -34,9 +35,9 @@ def test_generate_synthetic_creates_jsonl(tmp_path):
 @pytest.mark.usefixtures("db_setup")
 def test_evaluate_script_summary_and_optional_db(tmp_path):
     # Ensure dataset exists
-    subprocess.run(["python", "scripts/generate_synthetic.py", "--n", "10", "--lang-mix", "0.5"], check=True)
+    subprocess.run([sys.executable, "scripts/generate_synthetic.py", "--n", "10", "--lang-mix", "0.5"], check=True)
     out_summary = Path("scripts") / "summary.json"
-    cmd = ["python", "scripts/evaluate.py", "--dataset", "scripts/dataset.jsonl", "--out", str(out_summary)]
+    cmd = [sys.executable, "scripts/evaluate.py", "--dataset", "scripts/dataset.jsonl", "--out", str(out_summary)]
     if _db_available():
         cmd.append("--write-db")
     subprocess.run(cmd, check=True)

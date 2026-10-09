@@ -11,6 +11,7 @@ Layers:
 Greek-language support has been removed — this prototype targets
 English-language examples and does not establish legal compliance.
 """
+import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
@@ -105,7 +106,7 @@ PRIORITY: Dict[str, int] = {
     "HICN": 103,
     "HEALTH_CARD_CA": 102,
     "MRN": 100,
-    # NER person name (before generic structured)
+    # NER ranking applies only after structured-rule matches
     "PERSON": 99,
     # Financial
     "CREDIT_CARD": 95,
@@ -170,7 +171,10 @@ def _filter_mrn_overdetections(text: str, entities: List[Entity]) -> List[Entity
 def _dedupe(entities: List[Entity]) -> List[Entity]:
     entities_sorted = sorted(
         entities,
-        key=lambda e: (-_priority(e.label), -(e.end - e.start), e.start),
+        # A PERSON prediction must not override a complete date or street.
+        # Preserve existing priorities between structured matches themselves.
+        key=lambda e: (e.detector != "regex", -_priority(e.label),
+                       -(e.end - e.start), e.start),
     )
     kept: List[Entity] = []
     for e in entities_sorted:
@@ -180,10 +184,34 @@ def _dedupe(entities: List[Entity]) -> List[Entity]:
     return sorted(kept, key=lambda e: e.start)
 
 
+def _filter_field_names(text: str, statistical: List[Entity],
+                        structured: List[Entity]) -> List[Entity]:
+    """Keep field labels readable only when a matching identifier follows.
+
+    An acronym used elsewhere (for example an organization named SSN) is
+    still a statistical entity. This is not a general acronym stop list.
+    """
+    fields = {"SSN": "SSN", "MRN": "MRN", "NPI": "NPI",
+              "ZIP": "ZIP_US", "IBAN": "IBAN"}
+    kept = []
+    for entity in statistical:
+        label = fields.get(entity.text.upper())
+        is_field = label and any(
+            candidate.label == label
+            and 0 <= candidate.start - entity.end <= 24
+            and re.fullmatch(r"\s*(?:(?:on file|number)\s*)?[:#=-]?\s*",
+                             text[entity.end:candidate.start], re.IGNORECASE)
+            for candidate in structured
+        )
+        if not is_field:
+            kept.append(entity)
+    return kept
+
+
 def detect_entities(text: str, lang_hint: Optional[str] = None) -> List[Entity]:
     sp = _spacy_entities(text, lang_hint)
     rx = _regex_entities(text)
-    combined = _filter_mrn_overdetections(text, sp + rx)
+    combined = _filter_mrn_overdetections(text, _filter_field_names(text, sp, rx) + rx)
     return _dedupe(combined)
 
 
